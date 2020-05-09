@@ -21,8 +21,13 @@ TestGfxPrimitives.c: test graphics primitive routines for
 #include "SDL/SDL_gfxPrimitives.h"
 #endif
 
-#define WIDTH	640
-#define HEIGHT	480
+#ifdef PSP
+#	define WIDTH	480
+#	define HEIGHT	272
+#else
+#	define WIDTH	640
+#	define HEIGHT	480
+#endif
 
 #define NUM_RANDOM	512
 
@@ -1972,14 +1977,14 @@ void TestTexturedTrigon(SDL_Surface *screen)
 	}
 
 	/* Draw A=various */
-	boxRGBA(texture,0,0,1,1,255,255,255,ra[i]); 
+	boxRGBA(texture,0,0,1,1,255,255,255,ra[NUM_RANDOM-1]);
 	SetClip(screen,WIDTH/2,60,WIDTH,60+(HEIGHT-80)/2);
 	for (i=0; i<NUM_RANDOM; i++) {
 		texturedPolygon(screen, &tx2[i][0], &ty1[i][0], 3, texture, 0, 0);
 	}
 
 	/* Draw A=various */
-	boxRGBA(texture,0,0,1,1,255,255,255,ra[i]); 
+	boxRGBA(texture,0,0,1,1,255,255,255,ra[NUM_RANDOM-1]);
 	SetClip(screen,WIDTH/2,80+(HEIGHT-80)/2,WIDTH,HEIGHT);
 	for (i=0; i<NUM_RANDOM; i++) {
 		texturedPolygon(screen, &tx2[i][0], &ty2[i][0], 3, texture, 0, 0);
@@ -2810,16 +2815,33 @@ int main(int argc, char *argv[])
 	SDL_Event event;
 	int oldprim, curprim;
 	char title[64];
+	Uint32 sdlflags;
 
 	/* Generate title string */
 	sprintf (title,"TestGfxPrimitives - v%i.%i.%i",SDL_GFXPRIMITIVES_MAJOR, SDL_GFXPRIMITIVES_MINOR, SDL_GFXPRIMITIVES_MICRO);
 
 	/* Initialize SDL */
-	if ( SDL_Init(SDL_INIT_VIDEO) < 0 ) {
+#ifdef PSP
+	sdlflags = (SDL_INIT_VIDEO | SDL_INIT_JOYSTICK);
+#else
+	sdlflags = SDL_INIT_VIDEO;
+#endif
+	if ( SDL_Init(sdlflags) < 0 ) {
+
 		fprintf(stderr, "Couldn't initialize SDL: %s\n",SDL_GetError());
 		exit(1);
 	}
 	atexit(SDL_Quit);
+
+#ifdef PSP
+	if (!SDL_JoystickOpen(0))
+	{
+		fprintf(stderr,
+				"\nWarning: Could not open joystick 1.\n"
+				"The Simple DirectMedia error that occured was:\n"
+				"%s\n\n", SDL_GetError());
+	}
+#endif
 
 	/* Alpha blending doesn't work well at 8-bit color */
 	info = SDL_GetVideoInfo();
@@ -3188,6 +3210,17 @@ int main(int argc, char *argv[])
 						curprim--;
 					}
 					break;
+#ifdef PSP
+				case SDL_JOYBUTTONDOWN:
+					if ( event.jbutton.button == 7 /* LEFT */) {
+						curprim++;
+					} else if ( event.jbutton.button == 9 /* RIGHT */ ) {
+						curprim--;
+					} else if ( event.jbutton.button == 11 /* START */ ) {
+						done = 1;
+					}
+					break;
+#endif
 				case SDL_KEYDOWN:
 					/* Any keypress quits the app... */
 				case SDL_QUIT:

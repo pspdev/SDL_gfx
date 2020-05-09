@@ -983,10 +983,17 @@ int main ( int argc, char *argv[] )
 	messageText = (char *)malloc(128);
 
 	/* Set default options and check command-line */
+#ifdef PSP
+	w = 480;
+	h = 272;
+	desired_bpp = 32;
+	video_flags = SDL_SWSURFACE;
+#else
 	w = 640;
 	h = 480;
 	desired_bpp = 0;
 	video_flags = 0;
+#endif
 	start = 1;
 	end = 9999;
 	delay = 0;
@@ -1105,7 +1112,9 @@ int main ( int argc, char *argv[] )
 	}
 
 	/* Force double buffering */
+#ifndef PSP
 	video_flags |= SDL_DOUBLEBUF;
+#endif
 
 	/* Initialize SDL */
 	if ( SDL_Init(SDL_INIT_VIDEO) < 0 ) {

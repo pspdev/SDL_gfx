@@ -21,8 +21,13 @@ TestFonts.c: test dynamic font loading code
 #include "SDL/SDL_gfxPrimitives.h"
 #endif
 
-#define WIDTH	1024
-#define HEIGHT	768
+#ifdef PSP
+#	define WIDTH	480
+#	define HEIGHT	272
+#else
+#	define WIDTH	1024
+#	define HEIGHT	768
+#endif
 
 void WaitForEvent()
 {
@@ -137,7 +142,11 @@ char *LoadFontFile(int i)
 	if (myfont) {
 		if (strcmp(fontfile[i],"default")) {
 			/* Load a font data */
+#ifdef PSP
+            sprintf(filename,"%s",fontfile[i]);
+#else
 			sprintf(filename,"../Fonts/%s",fontfile[i]);
+#endif
 			if (!FileExists(filename))
 			{
 				sprintf(filename,"..\\Fonts\\%s",fontfile[i]);
@@ -341,7 +350,9 @@ int main(int argc, char *argv[])
 	}
 
 	/* Force double buffering */
+#ifndef PSP
 	videoflags |= SDL_DOUBLEBUF;
+#endif
 
 	/* Set video mode */
 	if ( (screen=SDL_SetVideoMode(WIDTH, HEIGHT, video_bpp, videoflags)) == NULL ) {
