@@ -1,2 +1,12 @@
-# SDL_gfx
- SDL2_gfx and SDL_gfx with PSP specific patches 
+# SDL2_gfx for PSP
+
+Build procedure:
+
+```shell
+./autogen.sh
+LDFLAGS="-L$(psp-config --pspsdk-path)/lib" LIBS="-lc -lpspuser" \
+  ./configure --host psp --with-sdl-prefix=$(psp-config --psp-prefix) \
+  --prefix=$(psp-config --psp-prefix) --disable-mmx --disable-shared
+make
+make install
+```
